@@ -4,6 +4,7 @@ USER root
 ENV JAVA_OPTS="-Xms6g -Xmx6g"
 ENV MAVEN_OPTS="-Xms6g -Xmx6g"
 RUN microdnf install npm
+RUN microdnf install maven
 RUN npm cache clean -f
 RUN npm install -g n
 RUN n stable
