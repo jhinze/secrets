@@ -1,4 +1,6 @@
 FROM quay.io/quarkus/ubi-quarkus-native-image:21.3-java11 as builder
+ARG RECAPTCHA_KEY
+ENV RECAPTCHA_KEY ${RECAPTCHA_KEY}
 WORKDIR /code
 USER root
 ENV JAVA_OPTS="-Xms6g -Xmx6g"

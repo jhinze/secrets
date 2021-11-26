@@ -20,14 +20,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Create env file
-        run: |
-          touch ./web/.env
-          echo REACT_APP_RECAPTCHA=\'${{ secrets.RECAPTCHA_KEY }}\' >> ./web/.env
-          cat ./web/.env
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
+          args: |
+            RECAPTCHA_KEY=${{ secrets.RECAPTCHA_KEY }}
           push: true
           tags: jhinze/vanishing-secrets:latest
