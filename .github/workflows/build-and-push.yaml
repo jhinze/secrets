@@ -18,10 +18,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Create env file
         run: |
           touch ./web/.env
-          echo API_KEY=${{ secrets.RECAPTCHA_KEY }} >> ./web/.env
+          echo REACT_APP_RECAPTCHA=${{ secrets.RECAPTCHA_KEY }} >> ./web/.env
           cat ./web/.env
       - name: Build and push
         id: docker_build
