@@ -1,10 +1,13 @@
 package dev.hinze.secret.service.impl;
 
-import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.config.Config;
+import com.hazelcast.instance.impl.DefaultNodeContext;
+import com.hazelcast.instance.impl.HazelcastInstanceImpl;
 import com.hazelcast.map.IMap;
 import dev.hinze.secret.model.CreateSecretRequest;
 import dev.hinze.secret.model.Secret;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.junit.mockito.InjectSpy;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.resteasy.specimpl.ResteasyUriInfo;
@@ -14,6 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import javax.annotation.Priority;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.UriInfo;
@@ -28,22 +34,32 @@ import static org.mockito.Mockito.*;
 @QuarkusTest
 public class SecretServiceImplTest {
 
+    @Alternative
+    @Priority(1)
+    @ApplicationScoped
+    public static class MockableHazelcast extends HazelcastInstanceImpl {
+
+        public MockableHazelcast() {
+            super("mock", new Config("mock"), new DefaultNodeContext());
+        }
+
+    }
+
+    @InjectMock
+    MockableHazelcast hazelcastInstance;
     @InjectSpy
     SecretServiceImpl secretService;
 
     private UriInfo uriInfo;
     private IMap<Object, Object> distributedMap;
 
-
     @BeforeEach
     public void before() {
         MockitoAnnotations.openMocks(this);
         distributedMap = Mockito.mock(IMap.class);
-        var hazelcastClient = Mockito.mock(HazelcastInstance.class);
-        uriInfo = new ResteasyUriInfo(URI.create("https://hinze.dev"));
-        secretService.hazelcastClient = hazelcastClient;
-        when(hazelcastClient.getMap(eq("secret-map")))
+        when(hazelcastInstance.getMap(eq("secret-map")))
                 .thenReturn(distributedMap);
+        uriInfo = new ResteasyUriInfo(URI.create("https://hinze.dev"));
     }
 
     @Test
