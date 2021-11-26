@@ -11,6 +11,7 @@ RUN npm install -g yarn
 ADD . /code
 RUN (cd /code/web && yarn install --network-timeout 1000000)
 RUN (cd /code/web && yarn build)
+RUN (cd /code/secret-api && mvn -N io.takari:maven:wrapper)
 RUN (cd /code/secret-api && ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline)
 RUN mkdir -p /code/secret-api/src/main/resources/META-INF/resources
 RUN cp -r /code/web/build/* /code/secret-api/src/main/resources/META-INF/resources/
