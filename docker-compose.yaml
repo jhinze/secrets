@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+
+  hazelcast:
+    image: hazelcast/hazelcast:4.1.6
+    ports:
+    - 5701:5701
+    environment:
+      - HZ_NETWORK_RESTAPI_ENABLED=true
+
+  secret:
+    image: docker.io/quarkus/secret
+    environment:
+      - HZ_ADDRESS=hazelcast
+    ports:
+      - 8080:8080
+    depends_on:
+      - hazelcast
+
