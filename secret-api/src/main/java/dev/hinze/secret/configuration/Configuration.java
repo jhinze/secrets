@@ -21,9 +21,9 @@ import static java.util.Objects.isNull;
 public class Configuration {
 
     @Produces
-    HazelcastInstance createInstance(@ConfigProperty(name = "${K8S_NAMESPACE}") Optional<String> namespace,
-                                     @ConfigProperty(name = "${K8S_SERVICE}") Optional<String> service,
-                                     @ConfigProperty(name = "${HZ_ADDRESS}") Optional<String> address) {
+    HazelcastInstance createInstance(@ConfigProperty(name = "k8s.namespace") Optional<String> namespace,
+                                     @ConfigProperty(name = "k8s.service") Optional<String> service,
+                                     @ConfigProperty(name = "hz.address") Optional<String> address) {
         var clientConfig = new ClientConfig();
         if(namespace.isPresent() && service.isPresent()) {
             log.info("k8s namespace {}", namespace);
