@@ -18,7 +18,7 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class RecaptchaServiceImpl implements RecaptchaService {
 
-    @ConfigProperty(name = "${RECAPTCHA_SECRET}")
+    @ConfigProperty(name = "recaptcha.secret")
     Optional<String> recaptchaSecret;
 
     @Inject
