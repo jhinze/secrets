@@ -33,7 +33,12 @@ const initialState = {
 
 export default function Secret() {
   const [secretState, setSecretState] = React.useState(initialState)
-  const recaptchaRef = React.createRef<any>();
+  let recaptchaRef: any;
+  const setRecaptchaRef = (ref: any) => {
+    if (ref) {
+      return recaptchaRef = ref;
+    }
+  };
   const params = useParams();
   const navigate = useNavigate();
   useEffect(() => {
@@ -81,6 +86,7 @@ export default function Secret() {
     });
     axios.post(`/api/secret?recaptcha=${value}`, {secret: secretState.secretValue})
       .then((response: AxiosResponse<CreateSecretResponse>) => {
+        recaptchaRef.reset();
         setSecretState({
           ...secretState,
           ...{
@@ -92,6 +98,7 @@ export default function Secret() {
         });
       })
       .catch((error) => {
+        recaptchaRef.reset();
         setSecretState({
           ...secretState,
           ...{
@@ -138,7 +145,7 @@ export default function Secret() {
       </Button>
       }
       {!secretState.viewingSecret && secretState.secretLink !== null && secretState.secretLink.length === 0 &&
-      <LoadingButton id="submit-button" loading={secretState.saving} onClick={() => recaptchaRef.current.execute()}>Submit</LoadingButton>
+      <LoadingButton id="submit-button" loading={secretState.saving} onClick={() => recaptchaRef.execute()}>Submit</LoadingButton>
       }
       <Snackbar anchorOrigin={{vertical: 'top', horizontal: 'center'}}
                 open={secretState.errorSaving}
@@ -171,7 +178,8 @@ export default function Secret() {
       </Typography>
       }
       <ReCAPTCHA
-        ref={recaptchaRef}
+        theme={"dark"}
+        ref={(r) => setRecaptchaRef(r)}
         size="invisible"
         sitekey={`${process.env.REACT_APP_RECAPTCHA}`}
         onChange={handleSubmit}
