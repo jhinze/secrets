@@ -20,7 +20,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className="App">
+      <div className="App" style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}>
         <BrowserRouter basename={process.env.PUBLIC_URL}>
           <Routes>
             <Route path="/:secretId" element={<Secret />}/>

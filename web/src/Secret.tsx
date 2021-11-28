@@ -52,6 +52,7 @@ export default function Secret() {
         })
         .catch((error) => {
           console.log(error)
+          navigate("/", {replace: true});
           setSecretState({
             ...secretState,
             ...{
@@ -59,7 +60,6 @@ export default function Secret() {
               "secretNotFoundId": `${params.secretId}`
             }
           });
-          navigate("/", {replace: true});
         });
     }
   })
@@ -104,7 +104,7 @@ export default function Secret() {
       });
   };
   return (
-    <Stack direction={"column"} spacing={2} m={2}>
+    <Stack style={{ maxWidth: "1000px", width: "100%" }} direction={"column"} spacing={2} m={2}>
       <Typography variant={"h3"}>
         Secrets
       </Typography>
