@@ -1,12 +1,23 @@
 import {Link as RouterLink, useParams} from "react-router-dom";
 import React, {useEffect} from "react";
-import {Alert, Box, Button, Link, Snackbar, Stack, TextField, Tooltip, Typography} from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Grid,
+  Link,
+  Snackbar,
+  Stack,
+  TextField,
+  Typography
+} from "@mui/material";
 import LoadingButton from '@mui/lab/LoadingButton';
 import axios, {AxiosResponse} from "axios";
-import FileCopyIcon from '@material-ui/icons/FileCopy';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useNavigate } from 'react-router-dom'
 import ReCAPTCHA from "react-google-recaptcha";
+import CopyButton from "./CopyButton";
+import SubTitle from "./SubTitle";
 
 
 interface CreateSecretResponse {
@@ -22,6 +33,7 @@ interface SecretEntry {
 const initialState = {
   "viewingSecret": false,
   "secretEditable": true,
+  "gettingSecret": false,
   "retrievedSecret": false,
   "saving": false,
   "errorSaving": false,
@@ -32,7 +44,7 @@ const initialState = {
 }
 
 export default function Secret() {
-  const [secretState, setSecretState] = React.useState(initialState)
+  const [secretState, setSecretState] = React.useState(initialState);
   let recaptchaRef: any;
   const setRecaptchaRef = (ref: any) => {
     if (ref) {
@@ -43,31 +55,39 @@ export default function Secret() {
   const navigate = useNavigate();
   useEffect(() => {
     if (params.secretId && params.secretId.length > 0 && !secretState.retrievedSecret) {
+      setSecretState(s => { return {
+        ...s,
+        ...{
+         "gettingSecret": true
+        }
+      }});
       axios.get(`/api/secret/${params.secretId}`)
         .then((response: AxiosResponse<SecretEntry>) => {
-          setSecretState({
-            ...secretState,
+          setSecretState(s => { return {
+            ...s,
             ...{
               "viewingSecret": true,
+              "gettingSecret": false,
               "secretEditable": false,
               "retrievedSecret": true,
               "secretValue": response.data.secret
             }
-          });
+          }});
         })
         .catch((error) => {
           console.log(error)
           navigate("/", {replace: true});
-          setSecretState({
-            ...secretState,
+          setSecretState(s => { return {
+            ...s,
             ...{
               "secretNotFound": true,
+              "gettingSecret": false,
               "secretNotFoundId": `${params.secretId}`
             }
-          });
+          }});
         });
     }
-  })
+  }, [params.secretId, secretState.retrievedSecret, navigate])
   const handleTextFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSecretState({
       ...secretState,
@@ -115,16 +135,10 @@ export default function Secret() {
       <Typography variant={"h3"}>
         Secrets
       </Typography>
-      {secretState.viewingSecret &&
-      <Typography variant={"subtitle1"}>
-        {`Secret ${params.secretId} delivered`}
-      </Typography>
-      }
-      {!secretState.viewingSecret &&
-      <Typography variant={"subtitle1"}>
-          Secret is saved for 24 hours. Secret is only viewable one time.
-      </Typography>
-      }
+      <SubTitle text={secretState.viewingSecret ?
+                        `Secret ${params.secretId} delivered` :
+                        "Secret is saved for 24 hours. Secret is only viewable one time."}
+                loading={secretState.gettingSecret}/>
       <TextField disabled={!secretState.secretEditable}
                  id="secret-text-field"
                  multiline
@@ -133,10 +147,7 @@ export default function Secret() {
                  value={secretState.secretValue}
       />
       {secretState.viewingSecret &&
-      <Button id="copy-button" onClick={() => {navigator.clipboard.writeText(secretState.secretValue)}}>
-        <FileCopyIcon/>
-        <Box ml={1}>Copy</Box>
-      </Button>
+      <CopyButton text={secretState.secretValue} innerText={"Copy"} disableTip={true}/>
       }
       {(secretState.viewingSecret || (secretState.secretLink !== null && secretState.secretLink.length > 0)) &&
       <Button id="new-button" onClick={() => setSecretState(initialState)} component={RouterLink} to={"/"}>
@@ -166,16 +177,21 @@ export default function Secret() {
         <Alert id="not-found-alert" severity="error">{`${secretState.secretNotFoundId} not found`}</Alert>
       </Snackbar>
       {!secretState.viewingSecret && secretState.secretLink !== null && secretState.secretLink.length > 0 &&
-      <Typography id="secret-url" variant={"h6"}>
-          <Tooltip title={"Copy"}>
-            <Button id="copy-link-button" onClick={() => {navigator.clipboard.writeText(secretState.secretLink)}}>
-              <FileCopyIcon/>
-            </Button>
-          </Tooltip>
-          <Link href={secretState.secretLink}>
-            {secretState.secretLink}
-          </Link>
-      </Typography>
+      <Grid container style={{
+        justifyContent: "center",
+        alignItems: "center",
+      }}>
+          <Grid item>
+            <CopyButton text={secretState.secretLink}/>
+          </Grid>
+          <Grid item>
+            <Typography id="secret-url" variant={"h6"}>
+                <Link href={secretState.secretLink}>
+                  {secretState.secretLink}
+                </Link>
+            </Typography>
+          </Grid>
+      </Grid>
       }
       <ReCAPTCHA
         theme={"dark"}
