@@ -24,6 +24,16 @@ jobs:
           spec: cypress/integration/*
           start: yarn start
           working-directory: web
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: cypress-videos
+          path: cypress/videos
   docker:
     runs-on: ubuntu-latest
     steps:
