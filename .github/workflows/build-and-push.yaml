@@ -17,7 +17,7 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           wait-on: http://localhost:3000
-          spec: cypress/integration/secret_spec.js
+          spec: cypress/integration/*
           start: yarn start
           working-directory: web
   docker:
