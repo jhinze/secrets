@@ -11,9 +11,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Setup yarn package
+        run: cd web && yarn install --network-timeout 1000000
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          wait-on: http://localhost:3000
+          spec: cypress/integration/secret_spec.js
           start: yarn start
           working-directory: web
   docker:
