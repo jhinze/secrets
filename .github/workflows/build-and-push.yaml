@@ -24,6 +24,8 @@ jobs:
           spec: cypress/integration/*
           start: yarn start
           working-directory: web
+        env:
+          REACT_APP_RECAPTCHA: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
